@@ -3,6 +3,7 @@ package tools
 import (
 	"time"
     "reflect"
+    "strings"
 )
 
 func GetMillis() int64 {
@@ -52,4 +53,18 @@ func GetStructFields( u interface{} ) []string {
     }
     return fields
 }
+
+func Lower1stCharOfStringArray ( arr []string ) []string {
+    arr_lower := []string {}
+    for _, str := range arr {
+        if str == "" {
+            arr_lower = append( arr_lower, str  )
+        } else {
+            arr_lower = append( arr_lower, strings.ToLower(str[0:1])+ str[1:]  )
+        }
+    }
+    return arr_lower
+}
+
+
 
