@@ -66,5 +66,12 @@ func Lower1stCharOfStringArray ( arr []string ) []string {
     return arr_lower
 }
 
+func GetStructFieldNum( u interface{} ) int {
+    t := reflect.TypeOf(u)
+    if t.Kind() == reflect.Ptr { // if it is pointer
+        t = t.Elem() // get the actually type
+    }
+    return t.NumField()
+}
 
 
