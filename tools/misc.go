@@ -2,6 +2,7 @@ package tools
 
 import (
 	"time"
+    "reflect"
 )
 
 func GetMillis() int64 {
@@ -38,3 +39,17 @@ func UtctimestampToBeijingDate( seconds int64, format string ) string {
     t := time.Unix( seconds,0 ).UTC()
     return t.In(beijing).Format( format )
 }
+
+func GetStructFields( u interface{} ) []string {
+    fields := []string{}
+    t := reflect.TypeOf(u)
+    if t.Kind() == reflect.Ptr { // if it is pointer
+        t = t.Elem() // get the actually type
+    }
+    for i, n := 0, t.NumField(); i < n; i++ {
+        f := t.Field(i)
+        fields = append(fields, f.Name)
+    }
+    return fields
+}
+
