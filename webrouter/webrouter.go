@@ -66,9 +66,8 @@ func mappingApiStruct(uri string, v interface{}, method string) {
 }
 
 var (
-	ReflectTypeInt    = reflect.TypeOf(int(1))
+	ReflectTypeInt    = reflect.TypeOf(int(1)) // TODO
 	ReflectTypeString = reflect.TypeOf("")
-	ReflectTypeMapAny = reflect.TypeOf(map[string]interface{}{})
 )
 
 // 将 struct 中的 int 字段，设置为 math.MinInt32
@@ -159,7 +158,7 @@ func ReadBodyMiddleware(next http.Handler) http.Handler {
 					return
 				}
 
-				if ReflectTypeMapAny == reflect.TypeOf(v) {
+				if reflect.Map == reflect.TypeOf(v).Kind() {
 					m := map[string]interface{}{}
 					err = json.Unmarshal(b, &m)
 					if err != nil {
