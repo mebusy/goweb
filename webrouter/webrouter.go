@@ -159,14 +159,15 @@ func ReadBodyMiddleware(next http.Handler) http.Handler {
 				}
 
 				if reflect.Map == reflect.TypeOf(v).Kind() {
-					m := map[string]interface{}{}
-					err = json.Unmarshal(b, &m)
+					// m := map[string]interface{}{}
+					m_ptr := reflect.New(reflect.TypeOf(v)).Interface()
+					err = json.Unmarshal(b, m_ptr)
 					if err != nil {
 						log.Println(err)
 						funcErrResponse(w, err)
 						return
 					}
-					r = r.WithContext(context.WithValue(r.Context(), "param", m))
+					r = r.WithContext(context.WithValue(r.Context(), "param", m_ptr))
 				} else {
 					m_ptr := reflect.New(reflect.TypeOf(v)).Interface()
 
