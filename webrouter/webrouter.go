@@ -131,7 +131,7 @@ func SetErrResponseFunc(f func(http.ResponseWriter, error)) {
 func LoggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		if r.URL.Path == "/" && r.Method == "GET" {
+		if (r.URL.Path == "/" && r.Method == "GET") || r.Method == "HEAD" {
 			next.ServeHTTP(w, r)
 		} else {
 			// Do stuff here
