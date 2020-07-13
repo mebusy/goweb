@@ -130,16 +130,22 @@ func SetErrResponseFunc(f func(http.ResponseWriter, error)) {
 // must register before  body-reading method
 func LoggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Do stuff here
-		data, err := httputil.DumpRequest(r, true)
 
-		if err == nil {
-			log.Println("client:"+r.RemoteAddr, " req:", string(data))
+		if r.URL.Path == "/" && r.Method == "GET" {
+			next.ServeHTTP(w, r)
 		} else {
-			log.Println("DumpRequest:", err.Error())
+			// Do stuff here
+			data, err := httputil.DumpRequest(r, true)
+
+			if err == nil {
+				log.Println("client:"+r.RemoteAddr, " req:", string(data))
+			} else {
+				log.Println("DumpRequest:", err.Error())
+			}
+			// Call the next handler, which can be another middleware in the chain, or the final handler.
+			next.ServeHTTP(w, r)
 		}
-		// Call the next handler, which can be another middleware in the chain, or the final handler.
-		next.ServeHTTP(w, r)
+
 	})
 }
 
