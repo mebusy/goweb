@@ -164,6 +164,10 @@ func ReadBodyMiddleware(next http.Handler) http.Handler {
 					return
 				}
 
+                if len(b) == 0 {  // client doesn't submit anything
+                    b = []byte( "{}" )
+                }
+
 				if reflect.Map == reflect.TypeOf(v).Kind() {
 					// m := map[string]interface{}{}
 					m_ptr := reflect.New(reflect.TypeOf(v)).Interface()
