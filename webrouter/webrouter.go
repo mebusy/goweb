@@ -178,6 +178,10 @@ func ReadBodyMiddleware(next http.Handler) http.Handler {
 						return
 					}
 					r = r.WithContext(context.WithValue(r.Context(), "param", m_ptr))
+
+				} else if reflect.String == reflect.TypeOf(v).Kind() {
+                    r = r.WithContext(context.WithValue(r.Context(), "param", string(b)  ))
+
 				} else {
 					m_ptr := reflect.New(reflect.TypeOf(v)).Interface()
 
