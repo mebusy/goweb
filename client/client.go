@@ -79,3 +79,19 @@ func Post(url string, contentType string, data io.Reader) (string, error) {
 	res, err := http_client.Post(url, contentType, data)
 	return readResponse(res, err)
 }
+func PostWithCookie(url string, contentType string, data io.Reader, cookie string ) (string, error) {
+    req, err := http.NewRequest("POST", url , data )
+    if err != nil {
+        return readResponse( nil, err)
+    }
+    if contentType != "" {
+        req.Header.Set( "Content-Type" , contentType )
+    }
+    if cookie != "" {
+        req.Header.Set( "Cookie", cookie )
+    }
+    res, err := http_client.Do(req)
+	return readResponse(res, err)
+}
+
+
