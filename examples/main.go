@@ -6,6 +6,6 @@ import (
 )
 
 func main() {
-    log.Println( tools.UtctimestampToBeijingDate( 1, "2006-01-02" ) )
+    log.Println( tools.UtctimestampToBeijingDate( tools.GetSeconds(), "2006-01-02 15:04:05" ) )
     log.Println("done")
 }
