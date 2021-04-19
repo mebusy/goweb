@@ -1,9 +1,11 @@
 package encrypt
 
 import (
-	"encoding/base64"
 	"encoding/asn1"
+	"encoding/base64"
+	"encoding/json"
 	"log"
+	// "strings"
 )
 
 /*
@@ -14,7 +16,7 @@ ASN.1 OBJECT IDENTIFIER  | ObjectIdentifier
 ASN.1 ENUMERATED | Enumerated.
 ASN.1 UTCTIME or GENERALIZEDTIME | time.Time.
 ASN.1 PrintableString, IA5String, or NumericString | string.
-Any of the above ASN.1 values | interface{}. 
+Any of the above ASN.1 values | interface{}.
 
 An ASN.1 SEQUENCE OF x or SET OF x can be written to a slice if an x can be written to the slice's element type.
 An ASN.1 SEQUENCE or SET can be written to a struct if each of the elements in the sequence can be written to the corresponding element in the struct.
@@ -55,7 +57,7 @@ type ReceiptFile_t  struct {
             //     Sha246 asn1.ObjectIdentifier
             //     N41 interface{}
             // }
-        } `asn1:"set"`
+        } `asn1:"set,optional"`
         ContentSeq43 struct {
             Pkcs7_data asn1.ObjectIdentifier
             ReceiptData [][]byte `asn1:"tag:0"`
@@ -70,6 +72,42 @@ type ReceiptFile_t  struct {
         // Signature ?
 
     } `asn1:"tag:0"`  // whole data
+}
+
+type IAPReceipt_t struct {
+    BundleID string
+    BundleVersion string
+    CreationDate string
+    ExpirationData string `json:",omitempty"`
+    Receipt struct {
+        Quantity  int
+        ProductID string
+        TransactionID string
+        OriginTransactionID string  `json:",omitempty"`
+        PurchaseData string
+        OriginPurchaseData string  `json:",omitempty"`
+    }
+}
+
+
+func ans1UnmarshalString( data []byte) (string, error) {
+    var val string
+    _, err := asn1.Unmarshal( data, &val )
+    if err != nil {
+        log.Println( err )
+        return "", err
+    }
+    return val, nil
+}
+
+func ans1UnmarshalInt( data []byte) (int, error) {
+    var val int
+    _, err := asn1.Unmarshal( data, &val )
+    if err != nil {
+        log.Println( err )
+        return 0, err
+    }
+    return val, nil
 }
 
 func ParseIAPReceipt( datab64 string ) (string, error) {
@@ -91,19 +129,116 @@ func ParseIAPReceipt( datab64 string ) (string, error) {
 
     // log.Printf("unmarshaled: %+v", v)
     log.Printf("rest: %+v", string(rest) )
+    var all_iap_receipts []IAPReceipt_t
     for _ , data_block := range v.Data {
         for _, receiptdata :=range data_block.ContentSeq43.ReceiptData {
-            log.Println( receiptdata )
+            // log.Println( receiptdata )
             var payload []ReceiptAttribute_t
             rest, err := asn1.UnmarshalWithParams( receiptdata, &payload, "set" )
             if err != nil {
                 log.Println( err )
                 continue
             }
-            log.Println("rest:", rest)
-            log.Printf( "%+v", payload )
-        }
+            // log.Println("rest:", rest)
+            // log.Printf( "%+v", payload )
+            _ = rest
+
+            var iap IAPReceipt_t
+            for _, attr := range payload {
+                switch attr.Type {
+                    case 2:
+                        bid, err := ans1UnmarshalString( attr.Value )
+                        if err != nil {
+                            continue
+                        }
+                        // log.Printf( "bid:%s len(%d)", bid, len(bid) )
+                        iap.BundleID = bid
+                    case 3:
+                        bver, err := ans1UnmarshalString( attr.Value )
+                        if err != nil {
+                            continue
+                        }
+                        iap.BundleVersion = bver
+                    case 12:
+                        createdata, err := ans1UnmarshalString( attr.Value )
+                        if err != nil {
+                            continue
+                        }
+                        iap.CreationDate = createdata
+                    case 21:
+                        expireData, err := ans1UnmarshalString( attr.Value )
+                        if err != nil {
+                            continue
+                        }
+                        iap.ExpirationData = expireData
+                    // case 4: // An opaque value used, with other data, to compute the SHA-1 hash during validation.
+                    // case 5: // A SHA-1 hash, used to validate the receipt.
+                    case 17: // The receipt for an in-app purchase.
+                        var rpld []ReceiptAttribute_t
+                        _, err := asn1.UnmarshalWithParams( attr.Value, &rpld, "set" )
+                        if err != nil {
+                            log.Println( err )
+                            continue
+                        }
+                        // log.Printf("%+v", rpld)
+                        for _, rattr  := range rpld {
+                            switch rattr.Type {
+                            case 1701:
+                                quantity, err := ans1UnmarshalInt( rattr.Value )
+                                if err != nil {
+                                    continue
+                                }
+                                iap.Receipt.Quantity = quantity
+                            case 1702:
+                                pid, err := ans1UnmarshalString( rattr.Value )
+                                if err != nil {
+                                    continue
+                                }
+                                iap.Receipt.ProductID = pid
+                            case 1703:
+                                tid, err := ans1UnmarshalString( rattr.Value )
+                                if err != nil {
+                                    continue
+                                }
+                                iap.Receipt.TransactionID = tid
+                            case 1705:
+                                otid, err := ans1UnmarshalString( rattr.Value )
+                                if err != nil {
+                                    continue
+                                }
+                                iap.Receipt.OriginTransactionID = otid
+                            case 1704:
+                                purchaseData, err := ans1UnmarshalString( rattr.Value )
+                                if err != nil {
+                                    continue
+                                }
+                                iap.Receipt.PurchaseData = purchaseData
+                            case 1706:
+                                opurchaseData, err := ans1UnmarshalString( rattr.Value )
+                                if err != nil {
+                                    continue
+                                }
+                                iap.Receipt.OriginPurchaseData = opurchaseData
+                            }
+                        }
+
+                }
+            } // payload
+            all_iap_receipts = append(all_iap_receipts, iap)
+        } // end ContentSeq43.ReceiptData
+    } // end v.Data
+    // log.Printf( "%+v", all_iap_receipts )
+
+    b, err := json.Marshal( &all_iap_receipts )
+    if err != nil {
+        log.Println(err)
+        return "", err
     }
 
-    return "" , nil
+    ret := string(b)
+    // log.Println(ret)
+    return ret , nil
 }
+
+
+
