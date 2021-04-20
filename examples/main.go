@@ -22,4 +22,10 @@ func main() {
     }
     log.Println( retB64 )
 
+    retB64, err = encrypt.ParseIAPReceiptBer( b64data )
+    if err != nil {
+        log.Println(err)
+    }
+    log.Println( retB64 )
+
 }
