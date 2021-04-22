@@ -1,10 +1,11 @@
-package encrypt
+package iap
 
 import (
 	"encoding/asn1"
 	"encoding/base64"
 	"encoding/json"
 	"log"
+    "fmt"
 	// "strings"
 )
 
@@ -76,7 +77,10 @@ type ReceiptFile_t  struct {
 
 type IAPReceipt_t struct {
     BundleID string
+    BundleIDHex string
     BundleVersion string
+    OpaqueHex string
+    SHA1Hex string
     CreationDate string
     ExpirationData string `json:",omitempty"`
     Receipt struct {
@@ -178,12 +182,18 @@ func parseReceiptAttributes( receiptdata []byte )(IAPReceipt_t, error) {
                 }
                 // log.Printf( "bid:%s len(%d)", bid, len(bid) )
                 iap.BundleID = bid
+                iap.BundleIDHex = fmt.Sprintf( "%x", attr.Value )
             case 3:
                 bver, err := ans1UnmarshalString( attr.Value )
                 if err != nil {
                     continue
                 }
                 iap.BundleVersion = bver
+            case 4:
+                iap.OpaqueHex = fmt.Sprintf( "%x", attr.Value )
+            case 5:
+                iap.SHA1Hex = fmt.Sprintf( "%x", attr.Value )
+
             case 12:
                 createdata, err := ans1UnmarshalString( attr.Value )
                 if err != nil {

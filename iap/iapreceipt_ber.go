@@ -1,4 +1,4 @@
-package encrypt
+package iap
 
 import (
     "github.com/go-asn1-ber/asn1-ber"
@@ -81,3 +81,5 @@ func ParseIAPReceiptBer( datab64 string ) (string, error) {
 
     return string(b), nil
 }
+
+
