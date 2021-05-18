@@ -4,6 +4,7 @@ import (
     "log"
     "github.com/mebusy/goweb/tools"
     "github.com/mebusy/goweb/iap"
+    "github.com/mebusy/goweb/encrypt"
 )
 
 func main() {
@@ -32,5 +33,14 @@ func main() {
 
     bVerified := iap.VerifyIAPReceipt( b64data, "c68bce287e27494aa082acecb9328171", "com.temporary.ipatestapp",  "com.temporary.renew"  )
     log.Println( bVerified )
+
+    log.Println("AES encryption with GCM")
+    plaintext := []byte("Some plain text")
+    key := []byte("secretkey32bytessecretkey32bytes")
+    nonce := make([]byte, 12)
+    ciphertext := encrypt.AES_GCM_Encrypt(plaintext, key, nonce)
+    log.Printf("Ciphertext: %x\n", ciphertext)
+    recoveredPt := encrypt.AES_GCM_Decrypt (ciphertext, key, nonce)
+    log.Printf("Recovered plaintext: %s\n", recoveredPt)
 
 }
