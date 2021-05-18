@@ -94,4 +94,17 @@ func PostWithCookie(url string, contentType string, data io.Reader, cookie strin
 	return readResponse(res, err)
 }
 
+func PostWithHeaders(url string, headers map[string]string  , data io.Reader ) (string, error) {
+    req, err := http.NewRequest("POST", url , data )
+    if err != nil {
+        return readResponse( nil, err)
+    }
+
+    for k,v := range headers {
+        req.Header.Set( k,v )
+    }
+    res, err := http_client.Do(req)
+	return readResponse(res, err)
+}
+
 
