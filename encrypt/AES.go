@@ -9,31 +9,31 @@ import (
 
 
 // GCM实现算法不需要pad。
-func AES_GCM_Encrypt(plaintext, key, nonce []byte) []byte {
+func AES_GCM_Encrypt(plaintext, key, nonce []byte) ([]byte, error) {
     block, err := aes.NewCipher(key)
     if err != nil {
-        panic(err.Error())
+        return nil, err
     }
     aesgcm, err := cipher.NewGCM(block)
     if err != nil {
-        panic(err.Error())
+        return nil, err
     }
     ciphertext := aesgcm.Seal(nil, nonce, plaintext, nil)
-    return ciphertext
+    return ciphertext, nil
 }
-func AES_GCM_Decrypt(ciphertext, key, nonce []byte) []byte {
+func AES_GCM_Decrypt(ciphertext, key, nonce []byte) ([]byte, error) {
     block, err := aes.NewCipher(key)
     if err != nil {
-        panic(err.Error())
+        return nil, err
     }
     aesgcm, err := cipher.NewGCM(block)
     if err != nil {
-        panic(err.Error())
+        return nil, err
     }
     plaintext, err := aesgcm.Open(nil, nonce, ciphertext, nil)
     if err != nil {
-        panic(err.Error())
+        return nil, err
     }
-    return plaintext
+    return plaintext, nil
 }
 

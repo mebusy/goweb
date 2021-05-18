@@ -38,9 +38,9 @@ func main() {
     plaintext := []byte("Some plain text")
     key := []byte("secretkey32bytessecretkey32bytes")
     nonce := make([]byte, 12)
-    ciphertext := encrypt.AES_GCM_Encrypt(plaintext, key, nonce)
+    ciphertext, _ := encrypt.AES_GCM_Encrypt(plaintext, key, nonce)
     log.Printf("Ciphertext: %x\n", ciphertext)
-    recoveredPt := encrypt.AES_GCM_Decrypt (ciphertext, key, nonce)
+    recoveredPt, _ := encrypt.AES_GCM_Decrypt (ciphertext, key, nonce)
     log.Printf("Recovered plaintext: %s\n", recoveredPt)
 
 }
