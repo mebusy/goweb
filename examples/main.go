@@ -1,10 +1,12 @@
 package main
 
 import (
-    "log"
-    "github.com/mebusy/goweb/tools"
-    "github.com/mebusy/goweb/iap"
-    "github.com/mebusy/goweb/encrypt"
+	"encoding/hex"
+	"log"
+
+	"github.com/mebusy/goweb/encrypt"
+	"github.com/mebusy/goweb/iap"
+	"github.com/mebusy/goweb/tools"
 )
 
 func main() {
@@ -36,11 +38,11 @@ func main() {
 
     log.Println("AES encryption with GCM")
     plaintext := []byte("Some plain text")
-    key := []byte("secretkey32bytessecretkey32bytes")
-    nonce := make([]byte, 12)
-    ciphertext, _ := encrypt.AES_GCM_Encrypt(plaintext, key, nonce)
+
+    key, _ := hex.DecodeString( "2836e95fcd10e04b0069bb1ee659955b" )
+    ciphertext, _ := encrypt.AES_GCM_Encrypt(plaintext, key )
     log.Printf("Ciphertext: %x\n", ciphertext)
-    recoveredPt, _ := encrypt.AES_GCM_Decrypt (ciphertext, key, nonce)
-    log.Printf("Recovered plaintext: %s\n", recoveredPt)
+    recoveredPt, err := encrypt.AES_GCM_Decrypt (ciphertext, key)
+    log.Printf("Recovered plaintext: %s , err:%v\n", recoveredPt, err )
 
 }
