@@ -79,6 +79,8 @@ func Post(url string, contentType string, data io.Reader) (string, error) {
 	res, err := http_client.Post(url, contentType, data)
 	return readResponse(res, err)
 }
+
+// deprecated: use (Post|Get)WithHeaders instead, since contentType and cookie are all entries in headers
 func PostWithCookie(url string, contentType string, data io.Reader, cookie string ) (string, error) {
     req, err := http.NewRequest("POST", url , data )
     if err != nil {
@@ -95,7 +97,13 @@ func PostWithCookie(url string, contentType string, data io.Reader, cookie strin
 }
 
 func PostWithHeaders(url string, headers map[string]string  , data io.Reader ) (string, error) {
-    req, err := http.NewRequest("POST", url , data )
+    return _reqWithHeaders( "POST", url, headers , data )
+}
+func GetWithHeaders(url string, headers map[string]string  , data io.Reader ) (string, error) {
+    return _reqWithHeaders( "GET", url, headers , data )
+}
+func _reqWithHeaders( method string, url string, headers map[string]string  , data io.Reader ) (string, error) {
+    req, err := http.NewRequest( method , url , data )
     if err != nil {
         return readResponse( nil, err)
     }
