@@ -110,10 +110,10 @@ func _reqWithHeaders( method string, url string, headers map[string]string, quer
 
     if queries != nil {
         q := req.URL.Query()
-        for k,v := range headers {
+        for k,v := range queries {
             q.Add( k,v )
         }
-        req.URL.RawQuery = q.Encode() // update query , must do it before add headers field!!
+        req.URL.RawQuery = q.Encode() // update query 
         log.Println( "url with query:", req.URL.String() )
     }
 
