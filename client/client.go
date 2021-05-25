@@ -96,21 +96,33 @@ func PostWithCookie(url string, contentType string, data io.Reader, cookie strin
 	return readResponse(res, err)
 }
 
-func PostWithHeaders(url string, headers map[string]string  , data io.Reader ) (string, error) {
-    return _reqWithHeaders( "POST", url, headers , data )
+func PostWithHeaders(url string, headers map[string]string ,queries  map[string]string, data io.Reader ) (string, error) {
+    return _reqWithHeaders( "POST", url, headers ,queries, data )
 }
-func GetWithHeaders(url string, headers map[string]string  , data io.Reader ) (string, error) {
-    return _reqWithHeaders( "GET", url, headers , data )
+func GetWithHeaders(url string, headers map[string]string  ,queries  map[string]string,  data io.Reader ) (string, error) {
+    return _reqWithHeaders( "GET", url, headers ,queries, data )
 }
-func _reqWithHeaders( method string, url string, headers map[string]string  , data io.Reader ) (string, error) {
+func _reqWithHeaders( method string, url string, headers map[string]string, queries  map[string]string  , data io.Reader ) (string, error) {
     req, err := http.NewRequest( method , url , data )
     if err != nil {
         return readResponse( nil, err)
     }
 
-    for k,v := range headers {
-        req.Header.Set( k,v )
+    if headers != nil {
+        for k,v := range headers {
+            req.Header.Set( k,v )
+        }
     }
+
+    if queries != nil {
+        q := req.URL.Query()
+        for k,v := range headers {
+            q.Add( k,v )
+        }
+        req.URL.RawQuery = q.Encode() // update query
+        log.Println( "url with query:", req.URL.String() )
+    }
+
     res, err := http_client.Do(req)
 	return readResponse(res, err)
 }
