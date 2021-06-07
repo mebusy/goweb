@@ -59,6 +59,9 @@ func mappingApiStruct(uri string, v interface{}, method string) {
 	key := KeyFromRequestURI(uri)
 	if key != "" {
 		if method == "POST" {
+			if _, ok := api_struct_map[key] ; ok {
+				log.Fatalf( "duplicated router prefix %s:" , key )
+			}
 			api_struct_map[key] = v
 		}
 		// fmt.Println( key )
