@@ -39,7 +39,7 @@ var gitcommit string
 func infoHandler(w http.ResponseWriter, r *http.Request) {
 	// time.Sleep( 10 * time.Second ) // test gracefully shutdown
 	fmt.Fprintf(w, "git commit: %s\n", gitcommit)
-	fmt.Fprintf(w, "host: %s\n", tools.GetIP())
+	fmt.Fprintf(w, "net host: %s\n", tools.GetIP())
 
 	var rLimit syscall.Rlimit
 	err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
@@ -47,6 +47,7 @@ func infoHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("Error Getting Rlimit ", err)
 	}
 	fmt.Fprintf(w, "rlimt cur:%d , max: %d \n", rLimit.Cur, rLimit.Max)
+	fmt.Fprintf(w, "x-for:%s, x-real-ip:%s, r.Host:%s", r.Header.Get("X-Forwarded-For") , r.Header.Get("X-Real-Ip"), r.Host ) 
 }
 
 func StartServer(r *mux.Router, listenPort, verbose int, _GitCommit string) {
