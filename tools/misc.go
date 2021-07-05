@@ -1,9 +1,10 @@
 package tools
 
 import (
-    "reflect"
-    "strings"
-    "encoding/json"
+	"bytes"
+	"encoding/json"
+	"reflect"
+	"strings"
 )
 
 
@@ -40,13 +41,19 @@ func GetStructFieldNum( u interface{} ) int {
     return t.NumField()
 }
 
+// will keep integer, rather than float64
 func Struct2Json2Map( s interface{}  ) (map[string]interface{}, error ) {
     b, err := json.Marshal( s )
     if err != nil {
         return nil , err
     }
     m := map[string] interface{} {} 
-    err = json.Unmarshal( b, &m )
+    
+    // simple json.UnMarshal to interface{} will generate float64 number
+    // using json.NewDecoder.Decode instead
+    d := json.NewDecoder( bytes.NewReader(b) )
+    d.UseNumber() // keep integer, rather than float64
+    err = d.Decode( &m )
     if err != nil {
         return nil , err
     }

@@ -45,4 +45,10 @@ func main() {
     recoveredPt, err := encrypt.AES_GCM_Decrypt (ciphertext, key)
     log.Printf("Recovered plaintext: %s , err:%v\n", recoveredPt, err )
 
+    log.Println( "struct 2 map[string]interface{}, keep number as integer" )
+    type Test struct {
+        Id int
+    }
+    d := Test { Id: 1234567890 }
+    log.Println( tools.Struct2Json2Map( &d ) )
 }
