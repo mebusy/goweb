@@ -228,7 +228,7 @@ func RegisterAPI(r *mux.Router, apis []API) {
 		api_doc += fmt.Sprintf("    %s\n", KeyFromRequestURI(api.Path))
 		api_doc += fmt.Sprintf("\tpath: '%s'\n", api.Path)
 		api_doc += fmt.Sprintf("\tmethod:%s\n", api.Method)
-		api_doc += fmt.Sprintf("\tbody:%+v", api.Params)
+		api_doc += fmt.Sprintf("\tbody:%+v\n", api.Params)
 		api_doc += fmt.Sprintf("\texample: %s\n", api.Example)
 		api_doc += fmt.Sprintf("\tdesc: %s\n", api.Desc)
 	}
