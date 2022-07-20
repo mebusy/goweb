@@ -229,11 +229,6 @@ func RegisterAPI(r *mux.Router, apis []API) {
 		api_doc += fmt.Sprintf("\tpath: '%s'\n", api.Path)
 		api_doc += fmt.Sprintf("\tmethod:%s\n", api.Method)
 		api_doc += fmt.Sprintf("\tbody:%+v", api.Params)
-		if api.Params != nil {
-			api_doc += fmt.Sprintf(", (%s)\n", "please lower-case json key")
-		} else {
-			api_doc += fmt.Sprintf("\n")
-		}
 		api_doc += fmt.Sprintf("\texample: %s\n", api.Example)
 		api_doc += fmt.Sprintf("\tdesc: %s\n", api.Desc)
 	}
